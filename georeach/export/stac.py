@@ -22,7 +22,7 @@ def generate_stac_catalog(config: Config) -> None:
     )
 
     bbox = config.study_area.bbox.to_tuple()
-    spatial_extent = SpatialExtent(bboxes=[bbox])
+    spatial_extent = SpatialExtent(bboxes=[list(bbox)])
     temporal_extent = TemporalExtent(intervals=[[datetime.now(), None]])
     extent = Extent(spatial=spatial_extent, temporal=temporal_extent)
 
@@ -46,7 +46,7 @@ def generate_stac_catalog(config: Config) -> None:
                 ]
             ],
         },
-        bbox=bbox,
+        bbox=list(bbox),
         datetime=datetime.now(),
         properties={
             "study_area": config.study_area.name,
@@ -92,10 +92,10 @@ def generate_stac_catalog(config: Config) -> None:
         item.add_asset(
             asset_id,
             Asset(
-                href=asset_info["href"],
-                media_type=asset_info["type"],
-                roles=asset_info["roles"],
-                title=asset_info["title"],
+                href=str(asset_info["href"]),
+                media_type=str(asset_info["type"]),
+                roles=list(asset_info["roles"]) if isinstance(asset_info["roles"], list | tuple) else [str(asset_info["roles"])],
+                title=str(asset_info["title"]),
             ),
         )
 
@@ -103,7 +103,8 @@ def generate_stac_catalog(config: Config) -> None:
     catalog.add_child(collection)
 
     catalog_path = output_dir / "catalog.json"
-    catalog.normalize_and_save(str(output_dir), catalog_type="SELF_CONTAINED")
+    from pystac import CatalogType
+    catalog.normalize_and_save(str(output_dir), catalog_type=CatalogType.SELF_CONTAINED)
 
     logger.info(f"STAC catalog saved to {catalog_path}")
     logger.success("STAC catalog generation complete")
