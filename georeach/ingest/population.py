@@ -6,7 +6,7 @@ import rasterio
 import requests
 from loguru import logger
 from rasterio.mask import mask
-from rasterio.warp import calculate_default_transform, reproject, Resampling
+from rasterio.warp import Resampling, calculate_default_transform, reproject
 from shapely.geometry import box
 
 from georeach.config import Config
@@ -33,7 +33,10 @@ def ingest_population(config: Config, subset: bool = False) -> None:
 
     cache_dir = Path("data/raw")
     cache_dir.mkdir(parents=True, exist_ok=True)
-    cache_path = cache_dir / f"worldpop_{config.study_area.country_code}_{config.data_sources['population']['year']}.tif"
+    cache_path = (
+        cache_dir
+        / f"worldpop_{config.study_area.country_code}_{config.data_sources['population']['year']}.tif"
+    )
 
     if not cache_path.exists():
         logger.info(f"Downloading from {worldpop_url}")
@@ -57,13 +60,15 @@ def ingest_population(config: Config, subset: bool = False) -> None:
         out_image, out_transform = mask(src, [bbox_geom], crop=True, nodata=src.nodata)
         out_meta = src.meta.copy()
 
-    out_meta.update({
-        "driver": "GTiff",
-        "height": out_image.shape[1],
-        "width": out_image.shape[2],
-        "transform": out_transform,
-        "compress": "lzw",
-    })
+    out_meta.update(
+        {
+            "driver": "GTiff",
+            "height": out_image.shape[1],
+            "width": out_image.shape[2],
+            "transform": out_transform,
+            "compress": "lzw",
+        }
+    )
 
     temp_path = output_dir / "population_temp.tif"
     with rasterio.open(temp_path, "w", **out_meta) as dest:
@@ -74,12 +79,14 @@ def ingest_population(config: Config, subset: bool = False) -> None:
             src.crs, config.crs.analysis, src.width, src.height, *src.bounds
         )
         kwargs = src.meta.copy()
-        kwargs.update({
-            "crs": config.crs.analysis,
-            "transform": transform,
-            "width": width,
-            "height": height,
-        })
+        kwargs.update(
+            {
+                "crs": config.crs.analysis,
+                "transform": transform,
+                "width": width,
+                "height": height,
+            }
+        )
 
         with rasterio.open(output_path, "w", **kwargs) as dst:
             for i in range(1, src.count + 1):
@@ -107,6 +114,7 @@ def _create_synthetic_population(config: Config, output_path: Path) -> None:
     width, height = 100, 100
 
     from rasterio.transform import from_bounds
+
     transform = from_bounds(bbox[0], bbox[1], bbox[2], bbox[3], width, height)
 
     np.random.seed(42)

@@ -71,7 +71,7 @@ def ingest_overture_data(config: Config, subset: bool = False) -> None:
 def _create_synthetic_overture(config: Config, theme: str, output_path: Path) -> None:
     """Create synthetic Overture-like data for demo."""
     import numpy as np
-    from shapely.geometry import Point, LineString
+    from shapely.geometry import LineString, Point
 
     logger.warning(f"Creating synthetic {theme} data - FOR DEMO ONLY")
 
@@ -82,20 +82,20 @@ def _create_synthetic_overture(config: Config, theme: str, output_path: Path) ->
         n = 50 if config else 50
         lons = np.random.uniform(bbox.west, bbox.east, n)
         lats = np.random.uniform(bbox.south, bbox.north, n)
-        geometries = [Point(lon, lat).buffer(0.001) for lon, lat in zip(lons, lats)]
+        geometries = [Point(lon, lat).buffer(0.001) for lon, lat in zip(lons, lats, strict=False)]
         data = {"id": [f"building_{i}" for i in range(n)], "geometry": geometries}
 
     elif theme == "places":
         n = 20
         lons = np.random.uniform(bbox.west, bbox.east, n)
         lats = np.random.uniform(bbox.south, bbox.north, n)
-        geometries = [Point(lon, lat) for lon, lat in zip(lons, lats)]
+        geometries = [Point(lon, lat) for lon, lat in zip(lons, lats, strict=False)]
         data = {"id": [f"place_{i}" for i in range(n)], "geometry": geometries}
 
     elif theme == "transportation":
         n = 30
         geometries = []
-        for i in range(n):
+        for _i in range(n):
             lon1, lon2 = np.random.uniform(bbox.west, bbox.east, 2)
             lat1, lat2 = np.random.uniform(bbox.south, bbox.north, 2)
             geometries.append(LineString([(lon1, lat1), (lon2, lat2)]))

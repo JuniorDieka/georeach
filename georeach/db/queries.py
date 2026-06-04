@@ -1,6 +1,5 @@
 """Spatial SQL query utilities."""
 
-from typing import Any, List
 
 import geopandas as gpd
 from loguru import logger

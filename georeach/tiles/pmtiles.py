@@ -43,11 +43,7 @@ def generate_pmtiles(config: Config) -> None:
         logger.info(f"Processing layer: {layer_name}")
 
         try:
-            gdf = gpd.read_postgis(
-                layer_info["query"],
-                engine,
-                geom_col="geometry"
-            )
+            gdf = gpd.read_postgis(layer_info["query"], engine, geom_col="geometry")
 
             gdf_4326 = gdf.to_crs(config.crs.storage)
 
@@ -57,13 +53,17 @@ def generate_pmtiles(config: Config) -> None:
             pmtiles_path = output_dir / layer_info["output"]
 
             try:
-                result = subprocess.run(
+                subprocess.run(
                     [
                         "tippecanoe",
-                        "-o", str(pmtiles_path),
-                        "-Z", "6",
-                        "-z", "14",
-                        "-l", layer_name,
+                        "-o",
+                        str(pmtiles_path),
+                        "-Z",
+                        "6",
+                        "-z",
+                        "14",
+                        "-l",
+                        layer_name,
                         "--drop-densest-as-needed",
                         "--extend-zooms-if-still-dropping",
                         str(geojson_path),

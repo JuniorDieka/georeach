@@ -29,11 +29,7 @@ def export_geoparquet(config: Config) -> None:
         logger.info(f"Exporting {table_name} to {filename}")
 
         try:
-            gdf = gpd.read_postgis(
-                f"SELECT * FROM {table_name}",
-                engine,
-                geom_col="geometry"
-            )
+            gdf = gpd.read_postgis(f"SELECT * FROM {table_name}", engine, geom_col="geometry")
 
             gdf_4326 = gdf.to_crs(config.crs.storage)
 

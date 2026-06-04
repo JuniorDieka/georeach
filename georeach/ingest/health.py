@@ -71,13 +71,15 @@ def _create_synthetic_health_facilities(config: Config, output_path: Path, subse
     lats = np.random.uniform(bbox.south, bbox.north, n)
 
     facilities = []
-    for i, (lon, lat) in enumerate(zip(lons, lats)):
-        facilities.append({
-            "id": f"facility_{i}",
-            "name": f"Health Center {i+1}",
-            "amenity": "clinic",
-            "geometry": Point(lon, lat),
-        })
+    for i, (lon, lat) in enumerate(zip(lons, lats, strict=False)):
+        facilities.append(
+            {
+                "id": f"facility_{i}",
+                "name": f"Health Center {i+1}",
+                "amenity": "clinic",
+                "geometry": Point(lon, lat),
+            }
+        )
 
     gdf = gpd.GeoDataFrame(facilities, crs="EPSG:4326")
     gdf = gdf.to_crs(config.crs.analysis)

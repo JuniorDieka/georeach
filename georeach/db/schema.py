@@ -28,14 +28,16 @@ def init_database(config: Config) -> None:
                 continue
 
             logger.info(f"Executing {sql_file.name}")
-            with open(sql_file, "r") as f:
+            with open(sql_file) as f:
                 sql = f.read()
 
             for statement in sql.split(";"):
                 statement = statement.strip()
                 # Skip empty statements and comment-only statements
-                if statement and not all(line.strip().startswith("--") or not line.strip() 
-                                        for line in statement.split("\n")):
+                if statement and not all(
+                    line.strip().startswith("--") or not line.strip()
+                    for line in statement.split("\n")
+                ):
                     conn.execute(text(statement))
             conn.commit()
 

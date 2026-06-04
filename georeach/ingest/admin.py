@@ -76,23 +76,25 @@ def ingest_admin_boundaries(config: Config, subset: bool = False) -> None:
 def _create_synthetic_admin(config: Config, output_path: Path) -> None:
     """Create synthetic admin boundary for demo purposes."""
     from shapely.geometry import box
-    
+
     logger.warning("Creating synthetic admin boundary - FOR DEMO ONLY")
-    
+
     bbox_geom = box(*config.study_area.bbox.to_tuple())
-    
+
     gdf = gpd.GeoDataFrame(
-        [{
-            "GID_0": config.study_area.country_code,
-            "NAME_0": "Democratic Republic of the Congo",
-            "GID_3": f"{config.study_area.country_code}.1.1.1",
-            "NAME_3": config.study_area.name,
-            "geometry": bbox_geom
-        }],
-        crs="EPSG:4326"
+        [
+            {
+                "GID_0": config.study_area.country_code,
+                "NAME_0": "Democratic Republic of the Congo",
+                "GID_3": f"{config.study_area.country_code}.1.1.1",
+                "NAME_3": config.study_area.name,
+                "geometry": bbox_geom,
+            }
+        ],
+        crs="EPSG:4326",
     )
-    
+
     gdf = gdf.to_crs(config.crs.analysis)
     gdf.to_file(output_path, driver="GPKG")
-    
+
     logger.info(f"Created synthetic admin boundary at {output_path}")

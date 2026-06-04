@@ -16,16 +16,16 @@ def compute_accessibility(config: Config) -> None:
     hexes_gdf = gpd.read_postgis(
         "SELECT h3_index, centroid as geometry FROM h3_grid WHERE population > 0",
         engine,
-        geom_col="geometry"
+        geom_col="geometry",
     )
 
     facilities_gdf = gpd.read_postgis(
-        "SELECT geometry FROM health_facilities",
-        engine,
-        geom_col="geometry"
+        "SELECT geometry FROM health_facilities", engine, geom_col="geometry"
     )
 
-    logger.info(f"Computing distances for {len(hexes_gdf)} populated hexes to {len(facilities_gdf)} facilities")
+    logger.info(
+        f"Computing distances for {len(hexes_gdf)} populated hexes to {len(facilities_gdf)} facilities"
+    )
 
     if len(facilities_gdf) == 0:
         logger.error("No health facilities found in database")
@@ -39,10 +39,7 @@ def compute_accessibility(config: Config) -> None:
         min_dist_m = dists.min()
         min_dist_km = min_dist_m / 1000.0
 
-        distances.append({
-            "h3_index": hex_row["h3_index"],
-            "distance_km": min_dist_km
-        })
+        distances.append({"h3_index": hex_row["h3_index"], "distance_km": min_dist_km})
 
     logger.info("Updating database with accessibility metrics")
 
@@ -64,19 +61,21 @@ def compute_accessibility(config: Config) -> None:
                 access_score = max(0.2 - (dist_km - moderate_km) * 0.01, 0)
 
             conn.execute(
-                text("""
+                text(
+                    """
                     UPDATE h3_grid
                     SET nearest_facility_km = :dist_km,
                         accessibility_class = :access_class,
                         accessibility_score = :access_score
                     WHERE h3_index = :h3_index
-                """),
+                """
+                ),
                 {
                     "dist_km": dist_km,
                     "access_class": access_class,
                     "access_score": access_score,
                     "h3_index": dist_info["h3_index"],
-                }
+                },
             )
         conn.commit()
 

@@ -1,7 +1,6 @@
 """Command-line interface for GeoReach pipeline."""
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 from loguru import logger
@@ -17,7 +16,7 @@ app = typer.Typer(
 
 @app.command()
 def ingest(
-    config_path: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
+    config_path: Path | None = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
     subset: bool = typer.Option(False, "--subset", help="Use subset data for demo"),
 ) -> None:
     """Ingest and preprocess source data."""
@@ -41,7 +40,7 @@ def ingest(
 
 @app.command()
 def load(
-    config_path: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
+    config_path: Path | None = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
 ) -> None:
     """Load processed data into PostGIS."""
     config = load_config(config_path)
@@ -58,7 +57,7 @@ def load(
 
 @app.command()
 def grid(
-    config_path: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
+    config_path: Path | None = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
 ) -> None:
     """Generate H3 hex grid and load into PostGIS."""
     config = load_config(config_path)
@@ -73,7 +72,7 @@ def grid(
 
 @app.command()
 def exposure(
-    config_path: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
+    config_path: Path | None = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
 ) -> None:
     """Compute flood exposure analysis."""
     config = load_config(config_path)
@@ -88,7 +87,7 @@ def exposure(
 
 @app.command()
 def accessibility(
-    config_path: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
+    config_path: Path | None = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
 ) -> None:
     """Compute service accessibility analysis."""
     config = load_config(config_path)
@@ -103,7 +102,7 @@ def accessibility(
 
 @app.command()
 def priority(
-    config_path: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
+    config_path: Path | None = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
 ) -> None:
     """Compute priority index."""
     config = load_config(config_path)
@@ -118,7 +117,7 @@ def priority(
 
 @app.command()
 def export(
-    config_path: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
+    config_path: Path | None = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
 ) -> None:
     """Export results to cloud-native formats."""
     config = load_config(config_path)
@@ -137,7 +136,7 @@ def export(
 
 @app.command()
 def tiles(
-    config_path: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
+    config_path: Path | None = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
 ) -> None:
     """Generate PMTiles for web map."""
     config = load_config(config_path)
@@ -152,7 +151,7 @@ def tiles(
 
 @app.command()
 def pipeline(
-    config_path: Optional[Path] = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
+    config_path: Path | None = typer.Option(None, "--config", "-c", help="Path to config.yaml"),
     subset: bool = typer.Option(False, "--subset", help="Use subset data for demo"),
 ) -> None:
     """Run the complete pipeline end-to-end."""

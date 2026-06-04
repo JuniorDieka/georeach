@@ -1,6 +1,5 @@
 """Generate STAC catalog for outputs."""
 
-import json
 from datetime import datetime
 from pathlib import Path
 
@@ -37,13 +36,15 @@ def generate_stac_catalog(config: Config) -> None:
         id="georeach-results",
         geometry={
             "type": "Polygon",
-            "coordinates": [[
-                [bbox[0], bbox[1]],
-                [bbox[2], bbox[1]],
-                [bbox[2], bbox[3]],
-                [bbox[0], bbox[3]],
-                [bbox[0], bbox[1]],
-            ]]
+            "coordinates": [
+                [
+                    [bbox[0], bbox[1]],
+                    [bbox[2], bbox[1]],
+                    [bbox[2], bbox[3]],
+                    [bbox[0], bbox[3]],
+                    [bbox[0], bbox[1]],
+                ]
+            ],
         },
         bbox=bbox,
         datetime=datetime.now(),
@@ -95,7 +96,7 @@ def generate_stac_catalog(config: Config) -> None:
                 media_type=asset_info["type"],
                 roles=asset_info["roles"],
                 title=asset_info["title"],
-            )
+            ),
         )
 
     collection.add_item(item)

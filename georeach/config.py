@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import yaml
 from pydantic import Field
@@ -53,7 +53,7 @@ class DataSource(BaseSettings):
     note: str | None = None
     year: int | None = None
     release: str | None = None
-    theme: List[str] | None = None
+    theme: list[str] | None = None
 
 
 class AccessibilityConfig(BaseSettings):
@@ -74,7 +74,7 @@ class AnalysisConfig(BaseSettings):
 
 
 class OutputsConfig(BaseSettings):
-    formats: List[str]
+    formats: list[str]
     compression: str
 
 
@@ -88,7 +88,7 @@ class Config(BaseSettings):
     crs: CRS
     h3: H3Config
     database: Database
-    data_sources: Dict[str, Any]
+    data_sources: dict[str, Any]
     analysis: AnalysisConfig
     outputs: OutputsConfig
     logging: LoggingConfig
@@ -99,14 +99,14 @@ class Config(BaseSettings):
         if not path.exists():
             raise FileNotFoundError(f"Config file not found: {path}")
 
-        with open(path, "r") as f:
+        with open(path) as f:
             raw_config = yaml.safe_load(f)
 
         raw_config = cls._expand_env_vars(raw_config)
         return cls(**raw_config)
 
     @staticmethod
-    def _expand_env_vars(config: Dict[str, Any]) -> Dict[str, Any]:
+    def _expand_env_vars(config: dict[str, Any]) -> dict[str, Any]:
         if isinstance(config, dict):
             return {k: Config._expand_env_vars(v) for k, v in config.items()}
         elif isinstance(config, list):
