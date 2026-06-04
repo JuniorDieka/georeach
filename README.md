@@ -16,7 +16,7 @@
 
 GeoReach is a production-grade geospatial analysis platform that identifies priority intervention areas by combining flood exposure risk with healthcare accessibility in Fizi Territory, South Kivu Province, DRC. The platform demonstrates modern GIS engineering practices with PostGIS spatial analysis, cloud-native data formats, and an interactive web map.
 
-**Key Question:** Which populated areas are both most exposed to flood hazard AND least able to reach a health facility — i.e., where should interventions be prioritized?
+**Key Question:** Which populated areas are both most exposed to flood hazard AND least able to reach a health facility i.e., where should interventions be prioritized?
 
 ### Interactive Map Views
 
@@ -175,8 +175,8 @@ See [DATA_SOURCES.md](DATA_SOURCES.md) for detailed provenance and licenses.
 - **Area:** ~4,000 km²
 
 ### Coordinate Reference Systems
-- **Analysis CRS:** EPSG:32735 (WGS 84 / UTM zone 35S) — for metric distance/area calculations
-- **Storage/Display CRS:** EPSG:4326 (WGS 84) — for web mapping and interoperability
+- **Analysis CRS:** EPSG:32735 (WGS 84 / UTM zone 35S) for metric distance/area calculations
+- **Storage/Display CRS:** EPSG:4326 (WGS 84) for web mapping and interoperability
 
 ### H3 Grid
 - **Resolution:** 6 (average hex edge ~3.23 km, area ~36.13 km²) for demo mode
@@ -268,13 +268,13 @@ georeach/
 
 All outputs are in `data/outputs/`:
 
-- **h3_results.parquet** — H3 grid with all analysis results (GeoParquet)
-- **admin_results.parquet** — Admin boundaries with aggregated stats (GeoParquet)
-- **population_cog.tif** — Population raster (Cloud-Optimized GeoTIFF)
-- **flood_hazard_cog.tif** — Flood hazard raster (COG)
-- **h3_grid.geojson** — H3 grid vector data (GeoJSON fallback)
-- **health_facilities.geojson** — Facility points vector data (GeoJSON)
-- **catalog.json** — STAC catalog describing all assets
+- **h3_results.parquet** - H3 grid with all analysis results (GeoParquet)
+- **admin_results.parquet** - Admin boundaries with aggregated stats (GeoParquet)
+- **population_cog.tif** - Population raster (Cloud-Optimized GeoTIFF)
+- **flood_hazard_cog.tif** - Flood hazard raster (COG)
+- **h3_grid.geojson** - H3 grid vector data (GeoJSON fallback)
+- **health_facilities.geojson** - Facility points vector data (GeoJSON)
+- **catalog.json** - STAC catalog describing all assets
 
 ## Testing
 
