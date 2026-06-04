@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgis:
+    image: postgis/postgis:16-3.4
+    container_name: georeach-postgis
+    environment:
+      POSTGRES_DB: georeach
+      POSTGRES_USER: georeach
+      POSTGRES_PASSWORD: georeach
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U georeach"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pipeline:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.pipeline
+    container_name: georeach-pipeline
+    depends_on:
+      postgis:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgis
+      DB_PORT: 5432
+      DB_NAME: georeach
+      DB_USER: georeach
+      DB_PASSWORD: georeach
+    volumes:
+      - ./data:/app/data
+      - ./config.yaml:/app/config.yaml
+    command: python3 -m georeach.cli pipeline --subset
+
+  web:
+    image: nginx:alpine
+    container_name: georeach-web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./data/outputs:/usr/share/nginx/html/data/outputs
+    depends_on:
+      - pipeline
+
+volumes:
+  postgis_data:

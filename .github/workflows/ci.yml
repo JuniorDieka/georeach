@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install ruff black mypy
+          pip install -r requirements.txt
+      
+      - name: Run ruff
+        run: ruff check georeach/ tests/
+      
+      - name: Run black
+        run: black --check georeach/ tests/
+      
+      - name: Run mypy
+        run: mypy georeach/ --ignore-missing-imports
+
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: georeach_test
+          POSTGRES_USER: georeach
+          POSTGRES_PASSWORD: georeach
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install GDAL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gdal-bin libgdal-dev
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -e ".[dev]"
+      
+      - name: Run tests
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: georeach_test
+          DB_USER: georeach
+          DB_PASSWORD: georeach
+        run: pytest tests/ -v --cov=georeach --cov-report=xml
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false

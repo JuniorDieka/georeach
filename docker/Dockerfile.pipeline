@@ -1,0 +1,31 @@
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.8.3
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-dev \
+    build-essential \
+    libpq-dev \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+COPY pyproject.toml .
+COPY georeach/ ./georeach/
+COPY sql/ ./sql/
+COPY config.yaml .
+
+RUN pip3 install .
+
+RUN mkdir -p /app/data/raw /app/data/processed /app/data/outputs
+
+ENV PATH="/usr/local/bin:${PATH}"
+
+CMD ["python3", "-m", "georeach.cli", "pipeline", "--subset"]

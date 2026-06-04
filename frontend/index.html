@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoReach - Flood Exposure & Service Accessibility</title>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <div class="sidebar">
+        <div class="header">
+            <h1>GeoReach</h1>
+            <p class="subtitle">Flood Exposure & Service Accessibility</p>
+            <p class="location">Fizi Territory, South Kivu, DRC</p>
+        </div>
+
+        <div class="controls">
+            <h3>Layers</h3>
+            <div class="layer-control">
+                <label>
+                    <input type="checkbox" id="layer-priority" checked>
+                    <span>Priority Index</span>
+                </label>
+            </div>
+            <div class="layer-control">
+                <label>
+                    <input type="checkbox" id="layer-exposure" checked>
+                    <span>Flood Exposure</span>
+                </label>
+            </div>
+            <div class="layer-control">
+                <label>
+                    <input type="checkbox" id="layer-accessibility">
+                    <span>Accessibility</span>
+                </label>
+            </div>
+            <div class="layer-control">
+                <label>
+                    <input type="checkbox" id="layer-facilities" checked>
+                    <span>Health Facilities</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>Priority Index</h3>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #d73027;"></span>
+                <span>High Priority</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #fee090;"></span>
+                <span>Medium Priority</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #4575b4;"></span>
+                <span>Low Priority</span>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>Flood Exposure</h3>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #08519c;"></span>
+                <span>Very High (200+ people)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #3182bd;"></span>
+                <span>High (100-200 people)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #9ecae1;"></span>
+                <span>Medium (50-100 people)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #deebf7;"></span>
+                <span>Low (10-50 people)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #f7fbff;"></span>
+                <span>Minimal (0-10 people)</span>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>Accessibility</h3>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #1a9850;"></span>
+                <span>Good (&lt;5 km)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #fdae61;"></span>
+                <span>Moderate (5-10 km)</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #d73027;"></span>
+                <span>Poor (&gt;10 km)</span>
+            </div>
+        </div>
+
+        <div class="info">
+            <h3>About</h3>
+            <p>This map shows areas with high flood exposure and limited access to health facilities in Fizi Territory,
+                DRC.</p>
+            <p><strong>Priority areas</strong> combine flood exposure risk with distance to health services.</p>
+            <p class="note">Note: Flood hazard layer is synthetic demo data for portfolio purposes.</p>
+        </div>
+    </div>
+
+    <div id="popup" class="popup hidden">
+        <button class="popup-close" onclick="closePopup()">×</button>
+        <div id="popup-content"></div>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/pmtiles@3.0.3/dist/pmtiles.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
