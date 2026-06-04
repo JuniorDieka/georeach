@@ -76,6 +76,7 @@ ignore = [
     "E501",  # Line too long (handled by black)
     "B008",  # Do not perform function calls in argument defaults (common in Typer CLI)
     "A003",  # Class attribute shadowing builtin (acceptable for config classes)
+    "PT001", # pytest.fixture() is already used correctly
 ]
 
 [tool.ruff.per-file-ignores]
