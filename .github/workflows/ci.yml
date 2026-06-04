@@ -26,7 +26,7 @@ jobs:
         run: ruff check georeach/ tests/
       
       - name: Run black
-        run: black --check --line-ending=lf georeach/ tests/
+        run: black --check georeach/ tests/
       
       - name: Run mypy
         run: mypy georeach/ --ignore-missing-imports
