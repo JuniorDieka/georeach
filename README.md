@@ -165,7 +165,7 @@ make full
 
 ⚠️ **Note:** The flood hazard layer is synthetic data created for demonstration purposes. In production, use real flood data from GFDRR, Fathom, JRC, or similar authoritative sources.
 
-See [DATA_SOURCES.md](DATA_SOURCES.md) for detailed provenance and licenses.
+See [DATA_SOURCES.md](docs/design/DATA_SOURCES.md) for detailed provenance and licenses.
 
 ## Methodology
 
@@ -337,6 +337,13 @@ GitHub Actions workflow runs on every push:
 3. **Temporal Analysis:** Static snapshot. Add multi-temporal flood scenarios and seasonal accessibility.
 4. **Validation:** Ground-truth validation with field surveys or local knowledge.
 5. **Scalability:** Optimize for country-wide or regional analysis with Dask/parallel processing.
+
+## Documentation
+
+- **[Architecture & Design Decisions](docs/design/ARCHITECTURE.md)** - Technical choices, CRS selection, H3 rationale, accessibility approach
+- **[Data Sources](docs/design/DATA_SOURCES.md)** - Detailed provenance, licenses, and recommendations
+- **[Contributing Guide](CONTRIBUTING.md)** - Development setup, code standards, testing
+- **[Push Checklist](docs/PUSH_CHECKLIST.md)** - Pre-deployment checklist (for maintainers)
 
 ## Contributing
 

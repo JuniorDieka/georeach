@@ -168,7 +168,7 @@ pytest tests/ --cov=georeach --cov-report=html
 - Update README.md for user-facing changes
 - Update docstrings for API changes
 - Add examples for new features
-- Update DATA_SOURCES.md for new data sources
+- Update docs/design/DATA_SOURCES.md for new data sources
 
 ## Commit Message Guidelines
 
