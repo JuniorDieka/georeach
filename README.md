@@ -14,9 +14,9 @@
 
 ## Overview
 
-GeoReach is a production-grade geospatial analysis platform that identifies priority intervention areas by combining flood exposure risk with healthcare accessibility in Fizi Territory, South Kivu Province, DRC. The platform demonstrates modern GIS engineering practices with PostGIS spatial analysis, cloud-native data formats, and an interactive web map.
+GeoReach identifies priority intervention areas by combining **flood exposure risk** with **healthcare accessibility** in Fizi Territory, DRC. Built with PostGIS, H3 hexagonal grids, and cloud-native geospatial formats.
 
-**Key Question:** Which populated areas are both most exposed to flood hazard AND least able to reach a health facility i.e., where should interventions be prioritized?
+**Core Question:** Where are people most exposed to floods AND farthest from health facilities?
 
 ### Interactive Map Views
 
@@ -55,18 +55,14 @@ GeoReach is a production-grade geospatial analysis platform that identifies prio
   </tr>
 </table>
 
-## What This Demonstrates
+## Key Features
 
-This portfolio project showcases real geospatial engineering capabilities:
-
-- ✅ **PostGIS + Spatial SQL**: Complex spatial queries, GIST indexes, spatial joins, and aggregations
-- ✅ **Raster × Vector Analysis**: Zonal statistics combining population rasters with flood hazard layers
-- ✅ **Network/Distance Accessibility**: Distance-based accessibility analysis to health facilities
-- ✅ **H3 Hexagonal Grid**: Discrete global grid system for spatial aggregation at resolution 6 (demo mode)
-- ✅ **Cloud-Native Outputs**: GeoParquet, Cloud-Optimized GeoTIFF (COG), PMTiles, STAC catalog
-- ✅ **Interactive Web Map**: MapLibre GL JS with vector tiles, layer controls, and popups
-- ✅ **Reproducible Pipeline**: One-command Docker setup with staged ETL and full test coverage
-- ✅ **Production Practices**: Type hints, tests, CI/CD, linting, structured logging, CRS discipline
+- **PostGIS Spatial Analysis** - GIST indexes, spatial joins, zonal statistics
+- **H3 Hexagonal Grids** - Resolution 6 demo, configurable to 8 for production
+- **Cloud-Native Outputs** - GeoParquet, COG, PMTiles, STAC catalog
+- **Interactive Web Map** - MapLibre GL JS with layer controls and popups
+- **One-Command Setup** - `docker-compose up --build`
+- **Production-Ready** - Type hints, tests, CI/CD, structured logging
 
 ## Architecture
 
@@ -93,53 +89,33 @@ graph TD
     style L fill:#FF9800
 ```
 
-## Quick Start (Demo)
-
-**One command to run the entire pipeline and view the interactive map:**
+## Quick Start
 
 ```bash
 docker-compose up --build
 ```
 
-Then open http://localhost:8080 in your browser.
+Open http://localhost:8080 to view the interactive map.
 
-This runs the full pipeline on a bundled subset of Fizi Territory with synthetic demo data.
+> Runs on bundled Fizi Territory subset with synthetic flood data (~30-40 seconds).
 
-## Manual Setup
+## Installation
 
-### Prerequisites
-
-- Python 3.11+
-- Docker & Docker Compose
-- PostgreSQL 16 + PostGIS 3.4
-- GDAL 3.8+
-- (Optional) tippecanoe for PMTiles generation
-
-### Installation
+**Requirements:** Python 3.11+, Docker, PostGIS 3.4, GDAL 3.8+
 
 ```bash
-# Clone repository
 git clone https://github.com/JuniorDieka/georeach.git
 cd georeach
-
-# Install dependencies
 pip install -r requirements.txt
 pip install -e .
-
-# Set up environment
-cp .env.example .env
-
-# Start PostGIS
-docker-compose up -d postgis
 ```
 
-### Run Pipeline
-
+**Run Pipeline:**
 ```bash
-# Quick demo with subset data
-make demo
+make demo              # Quick demo with subset
+make full              # Full Fizi Territory analysis
 
-# Or run stages individually
+# Or run stages individually:
 georeach ingest --subset
 georeach load
 georeach grid
@@ -147,10 +123,6 @@ georeach exposure
 georeach accessibility
 georeach priority
 georeach export
-georeach tiles
-
-# Full pipeline with complete data
-make full
 ```
 
 ## Data Sources
@@ -169,174 +141,71 @@ See [DATA_SOURCES.md](docs/design/DATA_SOURCES.md) for detailed provenance and l
 
 ## Methodology
 
-### Study Area
-- **Location:** Fizi Territory, South Kivu Province, DRC
-- **Bounding Box:** 27.3°E to 29.1°E, -4.5°S to -3.5°S
-- **Area:** ~4,000 km²
+**Study Area:** Fizi Territory, South Kivu, DRC (27.3-29.1°E, -4.5 to -3.5°S, ~4,000 km²)
 
-### Coordinate Reference Systems
-- **Analysis CRS:** EPSG:32735 (WGS 84 / UTM zone 35S) for metric distance/area calculations
-- **Storage/Display CRS:** EPSG:4326 (WGS 84) for web mapping and interoperability
+**Analysis Pipeline:**
 
-### H3 Grid
-- **Resolution:** 6 (average hex edge ~3.23 km, area ~36.13 km²) for demo mode
-- **Coverage:** ~529 hexagons for Fizi Territory subset
-- **Rationale:** Balances performance with meaningful spatial aggregation for demo purposes
-- **Production:** Can be configured to resolution 8 (~461m edge) for finer-grained analysis
+1. **H3 Grid Generation** - Resolution 6 hexagons (~36 km² each, 529 hexes for demo)
+2. **Flood Exposure** - Zonal stats: population within flood zones per hex
+3. **Accessibility** - Euclidean distance to nearest health facility
+4. **Priority Index** - Composite score: `(exposure × 0.6) + (inaccessibility × 0.4)`
 
-### Flood Exposure Analysis
-1. Load WorldPop population raster (1km resolution)
-2. Load flood hazard depth/extent raster
-3. Compute zonal statistics: sum population within flood zones per H3 hex
-4. Output: exposed population count + percentage per hex
+**CRS:** EPSG:32735 (UTM 35S) for analysis, EPSG:4326 (WGS 84) for outputs
 
-**Formula:**
-```
-exposure_pct = (population_exposed / total_population) × 100
-```
-
-### Service Accessibility Analysis
-1. Load health facility point locations
-2. For each populated hex centroid, compute Euclidean distance to nearest facility
-3. Classify accessibility:
-   - **Good:** < 5 km
-   - **Moderate:** 5-10 km
-   - **Poor:** > 10 km
-4. Compute accessibility score (0-1, higher = better access)
-
-**Future Enhancement:** Implement network-based routing with pgRouting over road network for travel-time accessibility.
-
-### Priority Index
-Normalized composite score combining exposure and inaccessibility:
-
-```
-priority_score = (norm_exposure × 0.6) + (norm_inaccessibility × 0.4)
-```
-
-- **Weights:** Configurable in `config.yaml` (default: 60% exposure, 40% accessibility)
-- **Normalization:** Min-max scaling to [0, 1]
-- **Classification:** Top 10% flagged as high-priority intervention zones
+> See [ARCHITECTURE.md](docs/design/ARCHITECTURE.md) for design decisions (why H3, why Euclidean distance, CRS rationale)
 
 ## Configuration
 
-Edit `config.yaml` to customize:
-
-```yaml
-study_area:
-  bbox: {west: 27.3, south: -4.5, east: 29.1, north: -3.5}
-
-h3:
-  resolution: 6  # Use 8 for production, 6 for demo
-
-analysis:
-  accessibility:
-    threshold_km: 5.0
-    moderate_km: 10.0
-  priority:
-    exposure_weight: 0.6
-    accessibility_weight: 0.4
-    top_percentile: 10
-```
+**Key settings in `config.yaml`:**
+- H3 resolution (6 for demo, 8 for production)
+- Priority weights (default: 60% exposure, 40% accessibility)
+- Accessibility thresholds (5km good, 10km moderate)
+- Study area bounding box
 
 ## Project Structure
 
 ```
 georeach/
-├── georeach/              # Main Python package
-│   ├── ingest/            # Data ingestion modules
-│   ├── db/                # PostGIS database utilities
-│   ├── grid/              # H3 grid generation
-│   ├── analysis/          # Exposure, accessibility, priority
-│   ├── export/            # GeoParquet, COG, STAC
-│   └── tiles/             # PMTiles generation
-├── sql/                   # PostGIS schema and queries
-├── frontend/              # MapLibre GL JS web map
-├── tests/                 # Pytest test suite
-├── docker/                # Dockerfiles
-├── data/
-│   ├── raw/               # Downloaded source data
-│   ├── processed/         # Intermediate outputs
-│   ├── subset/            # Bundled demo data
-│   └── outputs/           # Final exports
-├── config.yaml            # Configuration
-├── docker-compose.yml     # Docker orchestration
-├── Makefile               # Build automation
-└── pyproject.toml         # Python package metadata
+├── georeach/          # Python package (ingest, analysis, export)
+├── sql/               # PostGIS schema
+├── frontend/          # MapLibre web map
+├── tests/             # Pytest suite
+├── data/outputs/      # GeoParquet, COG, STAC, GeoJSON
+└── config.yaml        # Analysis configuration
 ```
 
 ## Outputs
 
-All outputs are in `data/outputs/`:
-
-- **h3_results.parquet** - H3 grid with all analysis results (GeoParquet)
-- **admin_results.parquet** - Admin boundaries with aggregated stats (GeoParquet)
-- **population_cog.tif** - Population raster (Cloud-Optimized GeoTIFF)
-- **flood_hazard_cog.tif** - Flood hazard raster (COG)
-- **h3_grid.geojson** - H3 grid vector data (GeoJSON fallback)
-- **health_facilities.geojson** - Facility points vector data (GeoJSON)
-- **catalog.json** - STAC catalog describing all assets
-
-## Testing
-
-```bash
-# Run all tests
-make test
-
-# Run with coverage
-pytest tests/ -v --cov=georeach --cov-report=html
-
-# Run specific test module
-pytest tests/test_exposure.py -v
-```
+**Cloud-native formats in `data/outputs/`:**
+- GeoParquet (h3_results, admin_results)
+- Cloud-Optimized GeoTIFF (population, flood hazard)
+- GeoJSON (h3_grid, health_facilities)
+- STAC catalog (catalog.json)
 
 ## Development
 
 ```bash
-# Install dev dependencies
-pip install -e ".[dev]"
-
-# Set up pre-commit hooks
-pre-commit install
-
-# Format code
-make format
-
-# Lint code
-make lint
-
-# Type check
-mypy georeach/
+pip install -e ".[dev]"   # Install dev dependencies
+make test                  # Run tests with coverage
+make lint                  # Ruff + mypy
+make format                # Black formatting
 ```
 
-## CI/CD
-
-GitHub Actions workflow runs on every push:
-- Linting (ruff, black, mypy)
-- Tests with PostGIS service container
-- Coverage reporting
+**CI/CD:** GitHub Actions runs linting, tests, and coverage on every push.
 
 ## Performance
 
-**Demo pipeline (subset, H3 resolution 6):**
-- 529 hexagons
-- 15 health facilities
-- Total population: 478,003
-- Exposed population: 147,995 (31%)
-- High priority areas: 53 hexagons (12.5% of population)
-- Runtime: ~30-40 seconds (excluding Docker build)
+| Mode | Hexagons | Population | Exposed | Runtime |
+|------|----------|------------|---------|----------|
+| **Demo** (res 6) | 529 | 478k | 148k (31%) | 30-40s |
+| **Full** (res 8) | ~5,400 | ~1.2M | ~350k (29%) | 5-10min |
 
-**Full pipeline (Fizi Territory, H3 resolution 8):**
-- ~5,400 hexagons
-- ~15-20 health facilities
-- Runtime: ~5-10 minutes (depending on data download and processing)
+## Limitations
 
-## Limitations & Future Work
-
-1. **Flood Data:** Currently uses synthetic demo data. Replace with real flood models (GFDRR, Fathom, JRC).
-2. **Accessibility:** Euclidean distance only. Implement pgRouting for network-based travel time.
-3. **Temporal Analysis:** Static snapshot. Add multi-temporal flood scenarios and seasonal accessibility.
-4. **Validation:** Ground-truth validation with field surveys or local knowledge.
-5. **Scalability:** Optimize for country-wide or regional analysis with Dask/parallel processing.
+- **Flood data:** Synthetic (demo only) - use GFDRR/Fathom/JRC for production
+- **Accessibility:** Euclidean distance - pgRouting recommended for road networks
+- **Temporal:** Static snapshot - add seasonal/multi-temporal analysis
+- **Scale:** Single territory - optimize with Dask for regional analysis
 
 ## Documentation
 
